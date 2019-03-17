@@ -49,6 +49,7 @@
         <commons.codec.version>1.11</commons.codec.version>
         <commons.collections.version>3.2.2</commons.collections.version>
         <commons.lang3.version>3.8.1</commons.lang3.version>
+        <commons.beanutils.version>1.9.3</commons.beanutils.version>
         <!--httpclient-->
         <httpclient.version>4.5.6</httpclient.version>
         <httpcore.version>4.4.10</httpcore.version>
@@ -59,6 +60,8 @@
         <!--日志-->
         <slf4j.version>1.7.25</slf4j.version>
         <javassist.version>3.11.0.GA</javassist.version>
+        <dom4j.version>1.6.1</dom4j.version>
+        <pinyin4j.version>2.5.0</pinyin4j.version>
     </properties>
     <!--肯定有的两个-->
     <dependencies>
@@ -182,7 +185,7 @@
                 <version>${druid.version}</version>
             </dependency>
 
-            <!--上传组件-->
+            <!--commons组件-->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
@@ -202,6 +205,11 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons.codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons.beanutils.version}</version>
             </dependency>
             <!--httpClient相关-->
             <dependency>
@@ -235,6 +243,18 @@
                 <groupId>com.gaby</groupId>
                 <artifactId>web-common</artifactId>
                 <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!--dom4j-->
+            <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>${dom4j.version}</version>
+            </dependency>
+            <!--拼音4j-->
+            <dependency>
+                <groupId>com.belerweb</groupId>
+                <artifactId>pinyin4j</artifactId>
+                <version>${pinyin4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
