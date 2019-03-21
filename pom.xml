@@ -62,18 +62,17 @@
         <javassist.version>3.11.0.GA</javassist.version>
         <dom4j.version>1.6.1</dom4j.version>
         <pinyin4j.version>2.5.0</pinyin4j.version>
+        <logback.version>1.1.7</logback.version>
     </properties>
     <!--肯定有的两个-->
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>
@@ -234,6 +233,22 @@
                 <artifactId>javassist</artifactId>
                 <version>${javassist.version}</version>
             </dependency>
+            <!--lomback-->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.gaby</groupId>
                 <artifactId>web-plugin</artifactId>
@@ -255,6 +270,17 @@
                 <groupId>com.belerweb</groupId>
                 <artifactId>pinyin4j</artifactId>
                 <version>${pinyin4j.version}</version>
+            </dependency>
+            <!--lombok-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
