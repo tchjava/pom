@@ -63,6 +63,9 @@
         <dom4j.version>1.6.1</dom4j.version>
         <pinyin4j.version>2.5.0</pinyin4j.version>
         <logback.version>1.1.7</logback.version>
+        <data-redis.version>1.8.1.RELEASE</data-redis.version>
+        <jedis.version>2.9.0</jedis.version>
+        <freemarker.version>2.3.22</freemarker.version>
     </properties>
     <!--肯定有的两个-->
     <dependencies>
@@ -281,6 +284,24 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+            </dependency>
+            <!--jedis-->
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+            <!--spring-data-redis-->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-redis</artifactId>
+                <version>${data-redis.version}</version>
+            </dependency>
+            <!--freemaker-->
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
