@@ -66,6 +66,8 @@
         <data-redis.version>1.8.1.RELEASE</data-redis.version>
         <jedis.version>2.9.0</jedis.version>
         <freemarker.version>2.3.22</freemarker.version>
+        <!--poi版本-->
+        <poi.version>3.17</poi.version>
     </properties>
     <!--肯定有的两个-->
     <dependencies>
@@ -302,6 +304,23 @@
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
                 <version>${freemarker.version}</version>
+            </dependency>
+
+            <!-- poi包 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml-schemas</artifactId>
+                <version>${poi.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
