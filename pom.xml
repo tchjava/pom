@@ -68,6 +68,9 @@
         <freemarker.version>2.3.22</freemarker.version>
         <!--poi版本-->
         <poi.version>3.17</poi.version>
+
+        <!--shiro-->
+        <shiro.version>1.2.3</shiro.version>
     </properties>
     <!--肯定有的两个-->
     <dependencies>
@@ -254,16 +257,7 @@
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.gaby</groupId>
-                <artifactId>web-plugin</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.gaby</groupId>
-                <artifactId>web-common</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
+
             <!--dom4j-->
             <dependency>
                 <groupId>dom4j</groupId>
@@ -321,6 +315,23 @@
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml-schemas</artifactId>
                 <version>${poi.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-web</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-spring</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+            <!--shiro缓存-->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-ehcache</artifactId>
+                <version>${shiro.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
