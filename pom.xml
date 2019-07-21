@@ -73,6 +73,8 @@
         <shiro.version>1.2.3</shiro.version>
         <!--xstream-->
         <xstream.version>1.4.10</xstream.version>
+        <!--activemq-->
+        <activemq.version>5.15.8</activemq.version>
         <!-- plugin version -->
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
@@ -160,14 +162,14 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-orm</artifactId>
+                <artifactId>spring-oxm</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-websocket</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.springframework</groupId>-->
+                <!--<artifactId>spring-websocket</artifactId>-->
+                <!--<version>${spring.version}</version>-->
+            <!--</dependency>-->
             <!--mybatisplus-->
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -351,6 +353,12 @@
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
                 <version>${xstream.version}</version>
+            </dependency>
+            <!--activemq-->
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${activemq.version}</version>
             </dependency>
             <!--maven plugin-->
             <dependency>
