@@ -33,14 +33,14 @@
         <!--mybatisplus版本-->
         <mybatis.plus.version>2.3.2</mybatis.plus.version>
         <!-- mysql驱动 -->
-        <mysql.version>5.1.32</mysql.version>
+        <mysql.version>5.1.40</mysql.version>
         <!--阿里连接池包版本-->
         <druid.version>1.1.12</druid.version>
         <!--模板引擎-->
         <velocity.version>1.7</velocity.version>
         <aspectj.version>1.9.2</aspectj.version>
         <!--分页组件-->
-        <pagehelper.version>4.0.0</pagehelper.version>
+        <pagehelper.version>5.1.8</pagehelper.version>
         <!--jee版本-->
         <javaee.api.version>7.0</javaee.api.version>
         <!--commons组件版本号-->
@@ -63,8 +63,10 @@
         <dom4j.version>1.6.1</dom4j.version>
         <pinyin4j.version>2.5.0</pinyin4j.version>
         <logback.version>1.1.7</logback.version>
-        <data-redis.version>1.8.1.RELEASE</data-redis.version>
+        <data-redis.version>2.1.3.RELEASE</data-redis.version>
+        <session-data-redis.version>2.1.3.RELEASE</session-data-redis.version>
         <jedis.version>2.9.0</jedis.version>
+        <pool2.version>2.4.3</pool2.version>
         <freemarker.version>2.3.22</freemarker.version>
         <!--poi版本-->
         <poi.version>3.17</poi.version>
@@ -97,6 +99,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -163,6 +166,12 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-oxm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!--springJMS-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jms</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <!--<dependency>-->
@@ -262,11 +271,7 @@
                 <artifactId>logback-core</artifactId>
                 <version>${logback.version}</version>
             </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-access</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
@@ -302,11 +307,24 @@
                 <artifactId>jedis</artifactId>
                 <version>${jedis.version}</version>
             </dependency>
+            <!--redis依赖pool-->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${pool2.version}</version>
+            </dependency>
+
             <!--spring-data-redis-->
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-redis</artifactId>
                 <version>${data-redis.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.session</groupId>
+                <artifactId>spring-session-data-redis</artifactId>
+                <version>${session-data-redis.version}</version>
             </dependency>
             <!--freemaker-->
             <dependency>
@@ -368,4 +386,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
