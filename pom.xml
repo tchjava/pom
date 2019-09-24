@@ -88,6 +88,8 @@
         <versions.maven.plugin.version>2.7</versions.maven.plugin.version>
         <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
         <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+        <!--okHttp-->
+        <okhttp.version>3.11.0</okhttp.version>
     </properties>
     <!--肯定有的两个-->
     <dependencies>
@@ -383,6 +385,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${maven.war.plugin.version}</version>
+            </dependency>
+
+            <!--okHttp-->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
