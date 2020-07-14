@@ -138,14 +138,83 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
                                 expression="org.springframework.stereotype.Controller"/>
 
     </context:component-scan>
-
+    
+    <mvc:cors>
+        <mvc:mapping path="/**"/>
+    </mvc:cors>
     <!--拦截器-->
-    <!--<mvc:interceptors>-->
-        <!--<mvc:interceptor>-->
-            <!--<mvc:mapping path="/wx/**"/>-->
-            <!--<bean class="com.tjlou.sps.interceptor.AppInterceptor"/>-->
-        <!--</mvc:interceptor>-->
-    <!--</mvc:interceptors>-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <!--公共参数-->
+            <mvc:exclude-mapping path="/platform/common-params"/>
+            <!--app版本更新-->
+            <mvc:exclude-mapping path="/platform/version"/>
+            <mvc:exclude-mapping path="/redis/**"/>
+            <!--用户-->
+            <mvc:exclude-mapping path="/user/phoneLogin"/>
+            <mvc:exclude-mapping path="/user/default-login"/>
+            <mvc:exclude-mapping path="/user/wx-login"/>
+            <mvc:exclude-mapping path="/user/h5-login"/>
+            <mvc:exclude-mapping path="/user/mp-login"/>
+            <mvc:exclude-mapping path="/platform/sms-wx-v1"/>
+            <!--公众号授权-->
+            <mvc:exclude-mapping path="/user/js-config"/>
+            <mvc:exclude-mapping path="/user/logout"/>
+
+            <!--分类-->
+            <mvc:exclude-mapping path="/category/list"/>
+            <mvc:exclude-mapping path="/category/multiple"/>
+            <mvc:exclude-mapping path="/category/newest"/>
+            <mvc:exclude-mapping path="/category/about-intercept"/>
+
+            <!--出价列表-->
+            <mvc:exclude-mapping path="/bid"/>
+            <!--超级学堂-->
+            <mvc:exclude-mapping path="/strategy/**"/>
+
+            <!--拍品-->
+            <mvc:exclude-mapping path="/product/time-node"/>
+            <!--属性信息-->
+            <mvc:exclude-mapping path="/product/attribute"/>
+
+            <!--首页接口-->
+            <mvc:exclude-mapping path="/instance/info"/>
+            <mvc:exclude-mapping path="/instance/all"/>
+            <mvc:exclude-mapping path="/instance/unitary"/>
+            <mvc:exclude-mapping path="/instance/pick-leaky"/>
+            <mvc:exclude-mapping path="/instance/newest"/>
+            <mvc:exclude-mapping path="/instance/search-multiple"/>
+            <mvc:exclude-mapping path="/instance/about-intercept"/>
+            <mvc:exclude-mapping path="/instance/search-newest"/>
+            <mvc:exclude-mapping path="/instance/search-about-intercept"/>
+            <mvc:exclude-mapping path="/instance/subsidy"/>
+            <!--百亿补贴-->
+            <mvc:exclude-mapping path="/subsidy/suspension-list"/>
+            <mvc:exclude-mapping path="/subsidy/suspension-list-count"/>
+
+            <!--商家搜索-->
+            <mvc:exclude-mapping path="/supplier"/>
+
+            <!--店铺首页-->
+            <mvc:exclude-mapping path="/shop/info"/>
+            <mvc:exclude-mapping path="/shop/pick-leaky"/>
+            <mvc:exclude-mapping path="/shop/newest"/>
+            <mvc:exclude-mapping path="/shop/about-intercept"/>
+            <mvc:exclude-mapping path="/shop/hot"/>
+
+            <!--关注-->
+            <mvc:exclude-mapping path="/follow/is-follow"/>
+
+            <!--公众号绑定事件-->
+            <mvc:exclude-mapping path="/user/bind-subscribe"/>
+
+            <!--支付回调地址-->
+            <mvc:exclude-mapping path="/bid/bid-notify-wx-v1"/>
+            <mvc:exclude-mapping path="/order/order-notify-wx-v1"/>
+          <bean class="com.tjlou.auction.interceptor.SecurityInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
     
     
     
@@ -155,6 +224,7 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
             <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>
             <ref bean="stringHttpMessageConverter"/>
             <ref bean="fastJsonHttpMessageConverter"></ref>
+            <bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/>
             <ref bean="marshallingHttpMessageConverter"></ref>
         </mvc:message-converters>
     </mvc:annotation-driven>
@@ -236,8 +306,8 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
         <property name="suffix" value=".jsp"/>
     </bean>
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <!-- 最大允许上传大小5MB -->
-        <property name="maxUploadSize" value="5242880" />
+        <!-- 最大允许上传大小30MB -->
+        <property name="maxUploadSize" value="31457280" />
         <!--低于这个阀值会存在内存中-->
         <property name="maxInMemorySize" value="40960" />
         <property name="defaultEncoding" value="UTF-8"></property>
@@ -272,10 +342,27 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
         <property name="password" value="${jdbc.password}" />
         <property name="driverClassName" value="${jdbc.driver}" />
         <property name="maxActive" value="${jdbc.maxActive}" />
+        <property name="maxWait" value="60000" />
         <property name="minIdle" value="${jdbc.minIdle}" />
         <property name="initialSize" value="${jdbc.initialSize}"/>
-        <property name="poolPreparedStatements" value="${jdbc.poolPreparedStatements}"/>
-        <property name="maxPoolPreparedStatementPerConnectionSize" value="${jdbc.maxPoolPreparedStatementPerConnectionSize}"/>
+        <property name="connectionInitSqls" value="set names utf8mb4;"></property>
+        <!-- 配置间隔多久启动一次DestroyThread，对连接池内的连接才进行一次检测，单位是毫秒。
+            检测时:1.如果连接空闲并且超过minIdle以外的连接，如果空闲时间超过minEvictableIdleTimeMillis设置的值则直接物理关闭。2.在minIdle以内的不处理。
+        -->
+        <property name="timeBetweenEvictionRunsMillis" value="600000" />
+        <!-- 配置一个连接在池中最大空闲时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+        <!-- 打开后，增强timeBetweenEvictionRunsMillis的周期性连接检查，minIdle内的空闲连接，每次检查强制验证连接有效性. 参考：https://github.com/alibaba/druid/wiki/KeepAlive_cn -->
+        <!--<property name="keepAlive" value="true" />-->
+        <!-- 连接泄露检查，打开removeAbandoned功能 , 连接从连接池借出后，长时间不归还，将触发强制回连接。回收周期随timeBetweenEvictionRunsMillis进行，如果连接为从连接池借出状态，并且未执行任何sql，并且从借出时间起已超过removeAbandonedTimeout时间，则强制归还连接到连接池中。 -->
+        <!--<property name="removeAbandoned" value="true" />-->
+        <!-- 超时时间，秒 -->
+        <!--<property name="removeAbandonedTimeout" value="10800"/>-->
+        <property name="validationQuery" value="${jdbc.validationQuery}"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="filters" value="stat"/>
     </bean>
     <!-- 让spring管理sqlsessionfactory 使用mybatis和spring整合包中的 -->
     <!-- SqlSessionFactory -->
@@ -292,7 +379,7 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
         <!-- 自动扫描 Xml 文件位置 -->
         <property name="mapperLocations">
             <list>
-                <value>classpath*:com/gaby/**/mapper/xml/**/*.xml</value>
+                <value>classpath*:com/tjlou/**/mapper/xml/**/*.xml</value>
             </list>
         </property>
         <!--<property name="typeAliasesPackage" value="com.pinyougou.**.pojo"/>-->
@@ -333,20 +420,17 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
     <!--通知-->
     <tx:advice id="txAdvice" transaction-manager="txTransactionManager">
         <tx:attributes>
-            <tx:method name="query*" propagation="SUPPORTS" read-only="true"/>
-            <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
-            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
-            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
-            <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
-            <tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />
-            <tx:method name="create*" propagation="REQUIRED" rollback-for="Exception"/>
-            <tx:method name="add**" propagation="REQUIRED" rollback-for="Exception"/>
-            <tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception"/>
-            <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception"/>
-            <tx:method name="edit*" propagation="REQUIRED" rollback-for="Exception"/>
-            <tx:method name="modify*" propagation="REQUIRED" rollback-for="Exception"/>
-            <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception"/>
-            <tx:method name="del*" propagation="REQUIRED" rollback-for="Exception"/>
+            <!--<tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />-->
+            <!--<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />-->
+            <!--<tx:method name="create*" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <!--<tx:method name="add**" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <!--<tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <!--<tx:method name="update*" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <!--<tx:method name="edit*" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <!--<tx:method name="modify*" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <!--<tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <!--<tx:method name="del*" propagation="REQUIRED" rollback-for="Exception"/>-->
+            <tx:method name="*" propagation="REQUIRED" rollback-for="Exception"/>
         </tx:attributes>
     </tx:advice>
     <!--声明式事务-->
@@ -356,11 +440,11 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
 
     <!--配置切面-->
     <aop:config>
-        <aop:pointcut id="txPointCut" expression="execution(* com.gaby..*.facade..*.*(..))"></aop:pointcut>
+        <aop:pointcut id="txPointCut" expression="execution(* com.tjlou..*.facade..*.*(..))"></aop:pointcut>
         <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut"/>
     </aop:config>
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.gaby.**.mapper" />
+        <property name="basePackage" value="com.tjlou.**.mapper" />
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
 </beans>
@@ -384,7 +468,7 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 
     <!-- 启用注解扫描，并定义组件查找规则 ，除了@controller，扫描所有的Bean -->
-    <context:component-scan base-package="com.gaby.**">
+    <context:component-scan base-package="com.tjlou.**,com.gaby.**">
         <context:exclude-filter type="annotation"
                                 expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
@@ -402,23 +486,26 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
+<!--<!DOCTYPE configuration-->
+        <!--PUBLIC "-//mybatis.org//DTD Config 3.0//EN"-->
+        <!--"http://mybatis.org/dtd/mybatis-3-config.dtd">-->
 <!DOCTYPE configuration
-		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "classpath:/mybatis-3-config.dtd">
 <configuration>
 
-	<!--驼峰式命名允许-->
-	<settings>
-		<setting name="mapUnderscoreToCamelCase" value="true"/>
-	</settings>
+    <!--驼峰式命名允许-->
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
 
-	<plugins>
-		<!-- com.github.pagehelper 为 PageHelper 类所在包名 -->
-		<plugin interceptor="com.github.pagehelper.PageHelper">
-			<!-- 设置数据库类型 Oracle,Mysql,MariaDB,SQLite,Hsqldb,PostgreSQL 六种数据库-->
-			<property name="dialect" value="mysql"/>
-		</plugin>
-	</plugins>
+    <plugins>
+        <!-- com.github.pagehelper 为 PageHelper 类所在包名 -->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!-- 设置数据库类型 Oracle,Mysql,MariaDB,SQLite,Hsqldb,PostgreSQL 六种数据库-->
+            <!--<property name="dialect" value="mysql"/>-->
+        </plugin>
+    </plugins>
 
 </configuration>
 ```
@@ -577,7 +664,7 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
          xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
-<display-name>Archetype Created Web Application</display-name>
+  <display-name>Archetype Created Web Application</display-name>
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>classpath:spring-*.xml</param-value>
@@ -585,6 +672,19 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
+
+
+  <!-- spring-filter -->
+  <filter>
+    <filter-name>httpPutFormContentFilter</filter-name>
+    <filter-class>org.springframework.web.filter.FormContentFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>httpPutFormContentFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
   <!-- 解决post乱码 -->
   <filter>
     <filter-name>CharacterEncodingFilter</filter-name>
@@ -603,6 +703,29 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
+  <!--跨域-->
+  <filter>
+    <filter-name>MyCorsFilter</filter-name>
+    <filter-class>com.tjlou.auction.filter.MyCorsFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>MyCorsFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!--session-redis-->
+  <filter>
+    <filter-name>springSessionRepositoryFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>springSessionRepositoryFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+
+
   <servlet>
     <servlet-name>springmvc</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -611,12 +734,12 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
       <param-name>contextConfigLocation</param-name>
       <param-value>classpath:servlet-web.xml</param-value>
     </init-param>
-      <load-on-startup>1</load-on-startup>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet-mapping>
     <servlet-name>springmvc</servlet-name>
-    <url-pattern>/</url-pattern>
+    <url-pattern>/auction/*</url-pattern>
   </servlet-mapping>
 </web-app>
 
@@ -627,77 +750,38 @@ maven的安装操作我在此就不多说，认为读者具备该能力，以下
 #### pom.xml
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>demo-ssm</artifactId>
-        <groupId>com.gaby</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>demo-ssm-web</artifactId>
-    <packaging>war</packaging>
-
-    <name>demo-ssm-web Maven Webapp</name>
-	
-    
-    <dependencies>
-
-        <!--模块依赖-->
+<!--模块依赖-->
         <dependency>
-            <groupId>com.gaby</groupId>
-            <artifactId>demo-ssm-controller</artifactId>
+            <groupId>com.tjlou</groupId>
+            <artifactId>auction-controller</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
         </dependency>
-    </dependencies>
-     <build>
-        <resources>
-            <resource>
-                <directory>../resources/${env}</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>*.xml</include>
-                    <include>*.dtd</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-         <!--可以改war包的名字，将env里的配置文件弄到classes中-->
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
-                    <warName>tjlou-${env}</warName>
-                    <webResources>
-                        <resource>
-                            <directory>../resources/${env}</directory>
-                            <targetPath>WEB-INF/classes</targetPath>
-                            <filtering>true</filtering>
-                        </resource>
-                    </webResources>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
 
+        <!--servlet-api-->
+        <!--servlet-api-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vdurmont</groupId>
+            <artifactId>emoji-java</artifactId>
+            <version>4.0.0</version>
+        </dependency>
 ```
 
 ### controller层(项目名-controller)
@@ -945,13 +1029,17 @@ mapper包里的就是数据访问层的代码。
 #### db.properties
 
 ```properties
+#47.99.198.101
 jdbc.driver=com.mysql.jdbc.Driver
-jdbc.url=jdbc:mysql://localhost:3306/stu_score?characterEncoding=utf-8
-jdbc.username=root
+jdbc.url=jdbc:mysql://rm-bp19qs385qeyoatn76o.mysql.rds.aliyuncs.com:3306/dev-sps
+#jdbc.url=jdbc:mysql://47.99.198.101:3306/ut-sps?characterEncoding=utf-8
+jdbc.username=dev
 jdbc.password=123456
-jdbc.maxActive=10
-jdbc.minIdle=5
-jdbc.initialSize=5
+
+jdbc.maxActive=20
+jdbc.minIdle=10
+jdbc.initialSize=10
+jdbc.validationQuery=select now()
 jdbc.poolPreparedStatements=true
 jdbc.maxPoolPreparedStatementPerConnectionSize=20
 ```
@@ -962,9 +1050,9 @@ jdbc.maxPoolPreparedStatementPerConnectionSize=20
 
 ```properties
 # priority  :debug<info<warn<error
-#you cannot specify every priority with different file for log4j 
-log4j.rootLogger=stdout,info,debug,warn,error 
- 
+#you cannot specify every priority with different file for log4j
+log4j.rootLogger=debug,stdout,info,warn,error 
+
 #console
 log4j.appender.stdout=org.apache.log4j.ConsoleAppender 
 log4j.appender.stdout.layout=org.apache.log4j.PatternLayout 
@@ -973,25 +1061,25 @@ log4j.appender.stdout.layout.ConversionPattern= [%d{yyyy-MM-dd HH:mm:ss a}]:%p %
 log4j.logger.info=info
 log4j.appender.info=org.apache.log4j.DailyRollingFileAppender 
 log4j.appender.info.DatePattern='_'yyyy-MM-dd'.log'
-log4j.appender.info.File=d\:/test/info/info.log
+log4j.appender.info.File=/usr/local/dev-auction/info/info.log
 log4j.appender.info.Append=true
 log4j.appender.info.Threshold=INFO
 log4j.appender.info.layout=org.apache.log4j.PatternLayout 
 log4j.appender.info.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss a} [Thread: %t][ Class:%c >> Method: %l ]%n%p:%m%n
-#debug log
+##debug log
 log4j.logger.debug=debug
-log4j.appender.debug=org.apache.log4j.DailyRollingFileAppender 
+log4j.appender.debug=org.apache.log4j.DailyRollingFileAppender
 log4j.appender.debug.DatePattern='_'yyyy-MM-dd'.log'
-log4j.appender.debug.File=d\:/test/debug/debug.log
+log4j.appender.debug.File=/usr/local/dev-auction/debug/debug.log
 log4j.appender.debug.Append=true
 log4j.appender.debug.Threshold=DEBUG
-log4j.appender.debug.layout=org.apache.log4j.PatternLayout 
+log4j.appender.debug.layout=org.apache.log4j.PatternLayout
 log4j.appender.debug.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss a} [Thread: %t][ Class:%c >> Method: %l ]%n%p:%m%n
 #warn log
 log4j.logger.warn=warn
 log4j.appender.warn=org.apache.log4j.DailyRollingFileAppender 
 log4j.appender.warn.DatePattern='_'yyyy-MM-dd'.log'
-log4j.appender.warn.File=d\:/test/warn/warn.log
+log4j.appender.warn.File=/usr/local/dev-auction/warn/warn.log
 log4j.appender.warn.Append=true
 log4j.appender.warn.Threshold=WARN
 log4j.appender.warn.layout=org.apache.log4j.PatternLayout 
@@ -1000,7 +1088,7 @@ log4j.appender.warn.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss a} [Thread: 
 log4j.logger.error=error
 log4j.appender.error = org.apache.log4j.DailyRollingFileAppender
 log4j.appender.error.DatePattern='_'yyyy-MM-dd'.log'
-log4j.appender.error.File = d\:/test/error/error.log 
+log4j.appender.error.File = /usr/local/dev-auction/error/error.log 
 log4j.appender.error.Append = true
 log4j.appender.error.Threshold = ERROR 
 log4j.appender.error.layout = org.apache.log4j.PatternLayout
@@ -1022,7 +1110,7 @@ log4j.appender.error.layout.ConversionPattern = %d{yyyy-MM-dd HH:mm:ss a} [Threa
 		  <groupId>org.springframework.data</groupId> 
 		  <artifactId>spring-data-redis</artifactId> 
 		  <version>1.7.2.RELEASE</version> 
-		</dependency>	
+		</dependency>
 ```
 
 ### 配置文件
@@ -1030,38 +1118,41 @@ log4j.appender.error.layout.ConversionPattern = %d{yyyy-MM-dd HH:mm:ss a} [Threa
 spring-redis.xml
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?> 
-<beans xmlns="http://www.springframework.org/schema/beans" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" 
-  xmlns:context="http://www.springframework.org/schema/context" 
-  xmlns:mvc="http://www.springframework.org/schema/mvc" 
-  xmlns:cache="http://www.springframework.org/schema/cache"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans   
-            http://www.springframework.org/schema/beans/spring-beans.xsd   
-            http://www.springframework.org/schema/context   
-            http://www.springframework.org/schema/context/spring-context.xsd   
-            http://www.springframework.org/schema/mvc   
-            http://www.springframework.org/schema/mvc/spring-mvc.xsd 
-            http://www.springframework.org/schema/cache  
-            http://www.springframework.org/schema/cache/spring-cache.xsd">  
-  
-   <context:property-placeholder location="classpath*:properties/*.properties" />   
-  
-   <!-- redis 相关配置 --> 
-   <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">  
-     <property name="maxIdle" value="${redis.maxIdle}" />   
-     <property name="maxWaitMillis" value="${redis.maxWait}" />  
-     <property name="testOnBorrow" value="${redis.testOnBorrow}" />  
-   </bean>  
-  
-   <bean id="JedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" 
-       p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}" p:pool-config-ref="poolConfig"/>  
-   
-   <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">  
-    	<property name="connectionFactory" ref="JedisConnectionFactory" />  
-   </bean>  
- 
-</beans>  
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://www.springframework.org/schema/cache
+            http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+
+    <!-- redis 相关配置 -->
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxTotal}"/>
+        <property name="maxIdle" value="${redis.maxIdle}" />
+        <property name="maxWaitMillis" value="${redis.maxWait}" />
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+        <!-- 池中可用资源耗尽时, borrow 方法是否阻塞等待 maxWaitMillis 毫秒 -->
+        <property name="blockWhenExhausted" value="true"/>
+    </bean>
+
+    <bean id="JedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+          p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}" p:pool-config-ref="poolConfig"/>
+
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="JedisConnectionFactory" />
+        <property name="keySerializer" ref="stringRedisSerializer"></property>
+    </bean>
+    <bean id="stringRedisSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+</beans>
 ```
 
 ### redis.properties
@@ -1139,10 +1230,13 @@ redis.maxWaitMillis=30000
 #### session.properties
 
 ```properties
-session.domainName=.121tongbu.com
-session.cookieName=TBJSESSIONID
-session.cookiePath=/
-session.domainNamePattern=/^(([a-zA-Z0-9_-])+(\.)?)*(121tongbu.)(([a-z]))+$/i
+session.domainName=auction.taojianlou.com
+session.cookieName=TJLSESSIONID
+session.cookiePath=/ut/auction
+session.domainNamePattern=/^(([a-zA-Z0-9_-])+(\\.)?)*(taojianlou.)(([a-z]))+$/i
+
+#sessionConfig配置选项
+session.config.namespace=session:auction:client
 ```
 
 #### spring-session.xml
@@ -1161,41 +1255,23 @@ session.domainNamePattern=/^(([a-zA-Z0-9_-])+(\.)?)*(121tongbu.)(([a-z]))+$/i
 
     <context:annotation-config/>
 
-
-
-    <!-- redis 相关配置 -->
-    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
-        <property name="maxIdle" value="${redis.maxIdle}" />
-        <property name="maxWaitMillis" value="${redis.maxWait}" />
-        <property name="testOnBorrow" value="${redis.testOnBorrow}" />
-        <!-- 池中可用资源耗尽时, borrow 方法是否阻塞等待 maxWaitMillis 毫秒 -->
-        <property name="blockWhenExhausted" value="true"/>
-    </bean>
-
-    <bean id="JedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-          p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}" p:pool-config-ref="poolConfig"/>
-
-    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
-        <property name="connectionFactory" ref="JedisConnectionFactory" />
-    </bean>
-
-
     <!-- 把session放入redis -->
     <bean id="redisHttpSessionConfiguration"
           class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
-        <!--统一设置session过期时间-->
-        <property name="maxInactiveIntervalInSeconds" value="21600"/>
+        <!--统一设置session过期时间 3天-->
+        <property name="maxInactiveIntervalInSeconds" value="3600"/>
         <!--允许任何数据存入redis,将尽快设置到缓存-->
         <property name="redisFlushMode" value="IMMEDIATE"/>
-        <!--<property name="cookieSerializer" ref="defaultCookieSerializer"></property>-->
+        <property name="cookieSerializer" ref="defaultCookieSerializer"></property>
+        <property name="redisNamespace" value="${session.config.namespace}"></property>
     </bean>
 
-    <!--<bean id="defaultCookieSerializer" class="org.springframework.session.web.http.DefaultCookieSerializer">-->
-        <!--<property name="domainName" value="${session.domainName}"/>-->
-        <!--<property name="cookieName" value="${session.cookieName}"/>-->
-        <!--<property name="cookiePath" value="${session.cookiePath}"/>-->
-        <!--&lt;!&ndash;<property name="domainNamePattern" value="${session.domainNamePattern}"/>&ndash;&gt;-->
-    <!--</bean>-->
+    <bean id="defaultCookieSerializer" class="org.springframework.session.web.http.DefaultCookieSerializer">
+    <property name="domainName" value="${session.domainName}"/>
+    <property name="cookieName" value="${session.cookieName}"/>
+    <property name="cookiePath" value="${session.cookiePath}"/>
+    <!--<property name="domainNamePattern" value="${session.domainNamePattern}"/>-->
+    </bean>
 </beans>
 
 ```
@@ -1287,12 +1363,39 @@ httpclient.socketTimeout=10000
         <property name="connectionManager" ref="connectionManager"></property>
     </bean>
 
+
+    <!--具有代理的httpclient构造器-->
+    <!--<bean id="proxyHttpClientBuilder" class="org.apache.http.impl.client.HttpClientBuilder">-->
+        <!--<property name="connectionManager" ref="connectionManager"></property>-->
+        <!--<property name="defaultCredentialsProvider" ref="basicCredentialsProvider"></property>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash;BasicCredentialsProvider 代理凭证&ndash;&gt;-->
+    <!--<bean id="basicCredentialsProvider" class="com.tjlou.wpt.httpclient.provider.CustomCredentialsProvider">-->
+        <!--<property name="credentials" ref="usernamePasswordCredentials"></property>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash;UsernamePasswordCredentials&ndash;&gt;-->
+    <!--<bean id="usernamePasswordCredentials" class="org.apache.http.auth.UsernamePasswordCredentials">-->
+        <!--<constructor-arg index="0" value="${16yun.proxyUser}"/>-->
+        <!--<constructor-arg index="1" value="${16yun.proxyPass}"/>-->
+    <!--</bean>-->
+
+
     <!--httpclient对象,多例-->
     <bean  id="httpClient" class="org.apache.http.impl.client.CloseableHttpClient"
           factory-bean="httpClientBuilder" factory-method="build"
     scope="prototype">
 
     </bean>
+
+    <!--&lt;!&ndash;代理httpclient对象,多例&ndash;&gt;-->
+    <!--<bean  id="proxyHttpClient" class="org.apache.http.impl.client.CloseableHttpClient"-->
+           <!--factory-bean="proxyHttpClientBuilder" factory-method="build"-->
+           <!--scope="prototype">-->
+
+    <!--</bean>-->
+
+
+
 
     <!--Builder-->
     <bean id="builder" class="org.apache.http.client.config.RequestConfig.Builder">
@@ -1301,10 +1404,39 @@ httpclient.socketTimeout=10000
         <property name="socketTimeout" value="${httpclient.socketTimeout}"/>
     </bean>
 
-    <!--请求配置对象-->
-    <bean class="org.apache.http.client.config.RequestConfig" factory-bean="builder" factory-method="build">
 
-    </bean>
+    <!--代理ip的builder-->
+    <!--<bean id="proxy_builder" class="org.apache.http.client.config.RequestConfig.Builder">-->
+        <!--<property name="connectTimeout" value="${httpclient.connectTimeout}"/>-->
+        <!--<property name="connectionRequestTimeout" value="${httpclient.connectionRequestTimeout}"/>-->
+        <!--<property name="socketTimeout" value="${httpclient.socketTimeout}"/>-->
+        <!--<property name="proxy" ref="httpHost"></property>-->
+    <!--</bean>-->
+
+    <!--代理ip的builder   特殊的针对发送聊天内容那的-->
+    <!--<bean id="proxy_msg_builder" class="org.apache.http.client.config.RequestConfig.Builder">-->
+        <!--<property name="connectTimeout" value="${httpclient.msg.connectTimeout}"/>-->
+        <!--<property name="connectionRequestTimeout" value="${httpclient.msg.connectionRequestTimeout}"/>-->
+        <!--<property name="socketTimeout" value="${httpclient.msg.socketTimeout}"/>-->
+        <!--<property name="proxy" ref="httpHost"></property>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash;代理服务器&ndash;&gt;-->
+    <!--<bean id="httpHost" class="org.apache.http.HttpHost">-->
+        <!--<constructor-arg index="0" value="${16yun.proxyHost}"></constructor-arg>-->
+        <!--<constructor-arg index="1" value="${16yun.proxyPort}"></constructor-arg>-->
+    <!--</bean>-->
+
+
+    <!--请求配置对象-->
+    <bean id="requestConfig" class="org.apache.http.client.config.RequestConfig" factory-bean="builder" factory-method="build"/>
+
+    <!--请求代理的配置对象-->
+    <!--<bean id="proxyRequestConfig" class="org.apache.http.client.config.RequestConfig" factory-bean="proxy_builder" factory-method="build">-->
+    <!--</bean>-->
+    <!--请求代理的配置对象 特殊：发送聊天-->
+    <!--<bean id="proxyMsgRequestConfig" class="org.apache.http.client.config.RequestConfig" factory-bean="proxy_msg_builder" factory-method="build"/>-->
+
+
     <!--定期清理无效连接-->
     <bean class="com.gaby.http.clear.IdleConnectionEvictor">
         <constructor-arg index="0" ref="connectionManager"/>
